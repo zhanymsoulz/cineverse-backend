@@ -7,13 +7,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.unime.CineVerse.model.Users;
 import com.unime.CineVerse.service.JWTService;
 import com.unime.CineVerse.service.UserService;
 
+import io.jsonwebtoken.io.IOException;
 import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
@@ -56,5 +60,22 @@ public ResponseEntity<Users> getCurrentUser(HttpServletRequest request) {
     Users user = userService.getUserById(3);
     return ResponseEntity.ok(user);
 }
+    @PutMapping("/product/{id}")
+    public ResponseEntity<String> updateProduct(@PathVariable int id, @RequestPart Users product) {
+
+        Users product1 = null;
+        try {
+            product1 = service.updateProduct(id, product);
+        } catch (IOException e) {
+            return new ResponseEntity<>("Failed to update", HttpStatus.BAD_REQUEST);
+        }
+        if (product1 != null) {
+            return new ResponseEntity<>("updated", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("Failed to update", HttpStatus.BAD_REQUEST);
+        }
+
+
+    }
 
 }

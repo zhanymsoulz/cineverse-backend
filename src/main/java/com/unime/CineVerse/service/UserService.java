@@ -45,4 +45,8 @@ public class UserService {
     public Users getUserById(int userId) {
         return repo.findById(userId).orElse(new Users());
     }
+
+    public Users updateProduct(int id, Users product) {
+        return repo.save(product);
+    }
 }
