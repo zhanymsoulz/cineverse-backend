@@ -41,4 +41,8 @@ public class UserService {
             return "fail";
         }
     }
+
+    public Users getUserById(int userId) {
+        return repo.findById(userId).orElse(new Users());
+    }
 }
