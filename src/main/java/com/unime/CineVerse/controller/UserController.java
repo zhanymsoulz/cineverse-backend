@@ -61,11 +61,11 @@ public ResponseEntity<Users> getCurrentUser(HttpServletRequest request) {
     return ResponseEntity.ok(user);
 }
     @PutMapping("/product/{id}")
-    public ResponseEntity<String> updateProduct(@PathVariable int id, @RequestPart Users product) {
+    public ResponseEntity<String> updateUser(@PathVariable int id, @RequestPart Users product) {
 
         Users product1 = null;
         try {
-            product1 = service.updateProduct(id, product);
+            product1 = service.updateUser(id, product);
         } catch (IOException e) {
             return new ResponseEntity<>("Failed to update", HttpStatus.BAD_REQUEST);
         }
