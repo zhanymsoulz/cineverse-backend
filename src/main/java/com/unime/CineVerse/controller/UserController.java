@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.unime.CineVerse.model.Users;
 import com.unime.CineVerse.service.JWTService;
@@ -93,7 +92,7 @@ public ResponseEntity<String> updateCurrentUser(
     Users currentUser = userService.getUserByUsername(username);
 
     try {
-        Users updated = service.updateUser(currentUser.getId(), userUpdateData);
+        service.updateUser(currentUser.getId(), userUpdateData);
         return new ResponseEntity<>("Updated", HttpStatus.OK);
     } catch (IOException e) {
         return new ResponseEntity<>("Failed to update", HttpStatus.BAD_REQUEST);
