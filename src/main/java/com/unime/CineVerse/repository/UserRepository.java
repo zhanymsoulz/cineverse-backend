@@ -9,4 +9,5 @@ import com.unime.CineVerse.model.Users;
 public interface UserRepository extends JpaRepository<Users, Integer> {
 
     Users findByUsername(String username);
+    
 }

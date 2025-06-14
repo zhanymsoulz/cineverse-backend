@@ -55,12 +55,13 @@ public ResponseEntity<Users> getCurrentUser(HttpServletRequest request) {
     }
 
     String token = authHeader.substring(7);
-    String username = jwtService.extractUserName(token); // or extractEmail()
+    String username = jwtService.extractUserName(token); // extract from token
 
-    Users user = userService.getUserById(3);
+    Users user = userService.getUserByUsername(username); // ⚠️ this must exist
     return ResponseEntity.ok(user);
 }
-    @PutMapping("/product/{id}")
+
+    @PutMapping("/users/{id}")
     public ResponseEntity<String> updateUser(@PathVariable int id, @RequestPart Users product) {
 
         Users product1 = null;
@@ -74,8 +75,30 @@ public ResponseEntity<Users> getCurrentUser(HttpServletRequest request) {
         } else {
             return new ResponseEntity<>("Failed to update", HttpStatus.BAD_REQUEST);
         }
-
-
     }
+    @PutMapping("/users/me")
+public ResponseEntity<String> updateCurrentUser(
+        HttpServletRequest request,
+        @RequestBody Users userUpdateData
+) {
+    String authHeader = request.getHeader("Authorization");
+
+    if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
+    }
+
+    String token = authHeader.substring(7);
+    String username = jwtService.extractUserName(token); // or extractEmail()
+
+    Users currentUser = userService.getUserByUsername(username);
+
+    try {
+        Users updated = service.updateUser(currentUser.getId(), userUpdateData);
+        return new ResponseEntity<>("Updated", HttpStatus.OK);
+    } catch (IOException e) {
+        return new ResponseEntity<>("Failed to update", HttpStatus.BAD_REQUEST);
+    }
+}
+
 
 }

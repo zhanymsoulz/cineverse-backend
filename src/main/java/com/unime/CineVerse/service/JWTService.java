@@ -4,6 +4,9 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
+
+
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +23,10 @@ import java.util.function.Function;
 public class JWTService {
 
 
-    private String secretkey = "key";
+    @Value("${jwt.secret}")
+    private String secretkey;
+
+    
 
     public JWTService() {
 
@@ -51,6 +57,7 @@ public class JWTService {
         byte[] keyBytes = Decoders.BASE64.decode(secretkey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
+    
 
     public String extractUserName(String token) {
         // extract the username from jwt token
