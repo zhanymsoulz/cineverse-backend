@@ -14,6 +14,7 @@ public class MovieService {
 
     public String getPopularMovies() {
         String url = BASE_URL + "/movie/popular?api_key=" + "6364e76f8bb702e4c71036665ee7aa6a" + "&language=en-US&page=1";
+        System.out.println(url);
 
         RestTemplate restTemplate = new RestTemplate();
         return restTemplate.getForObject(url, String.class); // you can parse it to a DTO later
