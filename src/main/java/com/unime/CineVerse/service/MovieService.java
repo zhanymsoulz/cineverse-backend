@@ -9,6 +9,7 @@ public class MovieService {
 
     @Value("${tmdb.api.key}")
     private String apiKey;
+    
 
     private final String BASE_URL = "https://api.themoviedb.org/3";
 
