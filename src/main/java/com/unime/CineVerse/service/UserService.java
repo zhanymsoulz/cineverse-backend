@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.unime.CineVerse.DTO.UserDTO;
 import com.unime.CineVerse.model.Users;
 import com.unime.CineVerse.repository.UserRepository;
 
@@ -28,8 +29,11 @@ public class UserService {
 
     private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
 
-    public Users register(Users user) {
-        user.setPassword(encoder.encode(user.getPassword()));
+    public Users register(UserDTO dto) {
+        Users user= new Users();
+        user.setUsername(dto.getUsername());
+        user.setEmail(dto.getEmail());
+        user.setPassword(encoder.encode(dto.getPassword()));
         repo.save(user);
         return user;
     }
@@ -51,12 +55,13 @@ public class UserService {
     return repo.findByUsername(username);
 }
 
-    public Users updateUser(int id, Users userData) {
+    public Users updateUser(int id, UserDTO dto) {
     Users existingUser = repo.findById(id)
         .orElseThrow(() -> new UsernameNotFoundException("User not found with ID: " + id));
 
-    // Update only allowed fields
-    existingUser.setEmail(userData.getEmail());
+    
+    existingUser.setEmail(dto.getEmail());
+    existingUser.setPassword(encoder.encode(dto.getPassword()));
     
     return repo.save(existingUser);
 }

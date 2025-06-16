@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.unime.CineVerse.DTO.UserDTO;
 import com.unime.CineVerse.model.Users;
 import com.unime.CineVerse.service.JWTService;
 import com.unime.CineVerse.service.UserService;
@@ -30,15 +31,15 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/register")
-    public Users register(@RequestBody Users user) {
-        return service.register(user);
+    public Users register(@RequestBody UserDTO dto) {
+        return service.register(dto);
 
     }
 
     @PostMapping("/login")
-    public String login(@RequestBody Users user) {
+    public String login(@RequestBody Users dto) {
 
-        return service.verify(user);
+        return service.verify(dto);
     }
 
     @GetMapping("/users/{userId}")
@@ -61,15 +62,15 @@ public ResponseEntity<Users> getCurrentUser(HttpServletRequest request) {
 }
 
     @PutMapping("/users/{id}")
-    public ResponseEntity<String> updateUser(@PathVariable int id, @RequestPart Users product) {
+    public ResponseEntity<String> updateUser(@PathVariable int id, @RequestPart UserDTO dto) {
 
-        Users product1 = null;
+        Users user = null;
         try {
-            product1 = service.updateUser(id, product);
+            user = service.updateUser(id, dto);
         } catch (IOException e) {
             return new ResponseEntity<>("Failed to update", HttpStatus.BAD_REQUEST);
         }
-        if (product1 != null) {
+        if (user != null) {
             return new ResponseEntity<>("updated", HttpStatus.OK);
         } else {
             return new ResponseEntity<>("Failed to update", HttpStatus.BAD_REQUEST);
@@ -78,7 +79,7 @@ public ResponseEntity<Users> getCurrentUser(HttpServletRequest request) {
     @PutMapping("/users/me")
 public ResponseEntity<String> updateCurrentUser(
         HttpServletRequest request,
-        @RequestBody Users userUpdateData
+        @RequestBody UserDTO dto
 ) {
     String authHeader = request.getHeader("Authorization");
 
@@ -92,12 +93,10 @@ public ResponseEntity<String> updateCurrentUser(
     Users currentUser = userService.getUserByUsername(username);
 
     try {
-        service.updateUser(currentUser.getId(), userUpdateData);
+        service.updateUser(currentUser.getId(), dto);
         return new ResponseEntity<>("Updated", HttpStatus.OK);
     } catch (IOException e) {
         return new ResponseEntity<>("Failed to update", HttpStatus.BAD_REQUEST);
     }
 }
-
-
 }
