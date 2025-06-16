@@ -13,7 +13,7 @@ public class MovieService {
     private final String BASE_URL = "https://api.themoviedb.org/3";
 
     public String getPopularMovies() {
-        String url = BASE_URL + "/movie/popular?api_key=" + "6364e76f8bb702e4c71036665ee7aa6a" + "&language=en-US&page=1";
+        String url = BASE_URL + "/movie/popular?api_key=" + apiKey + "&language=en-US&page=1";
         System.out.println(url);
 
         RestTemplate restTemplate = new RestTemplate();
