@@ -19,4 +19,12 @@ public class MovieService {
         RestTemplate restTemplate = new RestTemplate();
         return restTemplate.getForObject(url, String.class); // you can parse it to a DTO later
     }
+    public String getMovie(Long id) {
+    String url = BASE_URL + "/movie/" + id + "?api_key=" + apiKey + "&language=en-US";
+    System.out.println("Requesting movie: " + url);
+
+    RestTemplate restTemplate = new RestTemplate();
+    return restTemplate.getForObject(url, String.class);
+}
+
 }
