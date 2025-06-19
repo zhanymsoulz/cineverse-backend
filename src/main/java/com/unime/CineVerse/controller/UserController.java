@@ -1,9 +1,13 @@
 package com.unime.CineVerse.controller;
 
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,6 +24,7 @@ import com.unime.CineVerse.service.UserService;
 import io.jsonwebtoken.io.IOException;
 import jakarta.servlet.http.HttpServletRequest;
 
+@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 public class UserController {
 
@@ -37,10 +42,13 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public String login(@RequestBody Users dto) {
+public ResponseEntity<Map<String, String>> login(@RequestBody Users dto) {
+    String token = service.verify(dto);
+    Map<String, String> response = new HashMap<>();
+    response.put("token", token);
+    return ResponseEntity.ok(response);
+}
 
-        return service.verify(dto);
-    }
 
     @GetMapping("/users/{userId}")
     public Users getUserById(@PathVariable int userId){
