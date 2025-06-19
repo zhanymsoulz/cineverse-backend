@@ -57,17 +57,34 @@ public ResponseEntity<Map<String, String>> login(@RequestBody Users dto) {
     @GetMapping("/users/me")
 public ResponseEntity<Users> getCurrentUser(HttpServletRequest request) {
     String authHeader = request.getHeader("Authorization");
+    System.out.println("Auth header: " + authHeader);
 
     if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        System.out.println("Missing or invalid Authorization header");
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
     String token = authHeader.substring(7);
-    String username = jwtService.extractUserName(token); // extract from token
+    System.out.println("Extracted token: " + token);
 
-    Users user = userService.getUserByUsername(username); // ⚠️ this must exist
-    return ResponseEntity.ok(user);
+    try {
+        String username = jwtService.extractUserName(token);
+        System.out.println("Extracted username: " + username);
+
+        Users user = userService.getUserByUsername(username);
+        if (user == null) {
+            System.out.println("User not found in DB");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        return ResponseEntity.ok(user);
+    } catch (Exception e) {
+        System.out.println("Exception occurred: " + e.getMessage());
+        e.printStackTrace();  // Optional but helpful
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
 }
+
 
     @PutMapping("/users/{id}")
     public ResponseEntity<String> updateUser(@PathVariable int id, @RequestPart UserDTO dto) {

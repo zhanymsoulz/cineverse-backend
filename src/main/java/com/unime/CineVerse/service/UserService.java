@@ -24,7 +24,7 @@ public class UserService {
     AuthenticationManager authManager;
 
     @Autowired
-    private UserRepository repo;
+    private UserRepository userRepository;
 
 
     private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
@@ -34,7 +34,7 @@ public class UserService {
         user.setUsername(dto.getUsername());
         user.setEmail(dto.getEmail());
         user.setPassword(encoder.encode(dto.getPassword()));
-        repo.save(user);
+        userRepository.save(user);
         return user;
     }
 
@@ -42,8 +42,8 @@ public class UserService {
         Authentication authentication = authManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
         if (authentication.isAuthenticated()) {
 
-            Users existingUser = repo.findByUsername(user.getUsername());
-            repo.save(existingUser);
+            Users existingUser = userRepository.findByUsername(user.getUsername());
+            userRepository.save(existingUser);
 
             return jwtService.generateToken(user.getUsername());
         } else {
@@ -52,22 +52,22 @@ public class UserService {
     }
 
     public Users getUserById(int userId) {
-        return repo.findById(userId).orElse(new Users());
+        return userRepository.findById(userId).orElse(new Users());
     }
 
     public Users getUserByUsername(String username) {
-    return repo.findByUsername(username);
+    return userRepository.findByUsername(username);
 }
 
     public Users updateUser(int id, UserDTO dto) {
-    Users existingUser = repo.findById(id)
+    Users existingUser = userRepository.findById(id)
         .orElseThrow(() -> new UsernameNotFoundException("User not found with ID: " + id));
 
     
     existingUser.setEmail(dto.getEmail());
     existingUser.setPassword(encoder.encode(dto.getPassword()));
     
-    return repo.save(existingUser);
+    return userRepository.save(existingUser);
 }
 
 }
