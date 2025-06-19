@@ -41,6 +41,10 @@ public class UserService {
     public String verify(Users user) {
         Authentication authentication = authManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
         if (authentication.isAuthenticated()) {
+
+            Users existingUser = repo.findByUsername(user.getUsername());
+            repo.save(existingUser);
+
             return jwtService.generateToken(user.getUsername());
         } else {
             return "fail";
