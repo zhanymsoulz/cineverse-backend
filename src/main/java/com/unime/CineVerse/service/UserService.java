@@ -13,6 +13,8 @@ import com.unime.CineVerse.DTO.UserDTO;
 import com.unime.CineVerse.model.Users;
 import com.unime.CineVerse.repository.UserRepository;
 
+import java.time.LocalDateTime;
+
 
 @Service
 public class UserService {
@@ -43,6 +45,7 @@ public class UserService {
         if (authentication.isAuthenticated()) {
 
             Users existingUser = userRepository.findByUsername(user.getUsername());
+            existingUser.setLastActive(LocalDateTime.now());
             userRepository.save(existingUser);
 
             return jwtService.generateToken(user.getUsername());
