@@ -1,6 +1,8 @@
 package com.unime.CineVerse.model;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -25,6 +27,8 @@ public class Users {
 
     private LocalDateTime lastActive;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserBadge> userBadges = new ArrayList<>();
     @PrePersist
     @PreUpdate
     public void onLastActive(){

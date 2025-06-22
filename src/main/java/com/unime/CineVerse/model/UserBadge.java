@@ -20,8 +20,11 @@ public class UserBadge {
     private Long id;
 
     @ManyToOne
+    @JoinColumn(name = "user_id") // FK column in UserBadge table
     private Users user;
+
     @ManyToOne
+    @JoinColumn(name = "badge_id") // FK column in UserBadge table
     private Badge badge;
     private LocalDateTime awardedAt;
 
