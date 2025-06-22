@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository;
 import com.unime.CineVerse.model.Users;
 
 @Repository
-public interface UserRepository extends JpaRepository<Users, Integer> {
+public interface UserRepository extends JpaRepository<Users, Long> {
 
     Users findByUsername(String username);
     
