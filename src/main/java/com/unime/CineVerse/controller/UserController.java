@@ -51,7 +51,7 @@ public ResponseEntity<Map<String, String>> login(@RequestBody Users dto) {
 
 
     @GetMapping("/users/{userId}")
-    public Users getUserById(@PathVariable int userId){
+    public Users getUserById(@PathVariable Long userId){
         return service.getUserById(userId);
     }
     @GetMapping("/users/me")
@@ -87,7 +87,7 @@ public ResponseEntity<Users> getCurrentUser(HttpServletRequest request) {
 
 
     @PutMapping("/users/{id}")
-    public ResponseEntity<String> updateUser(@PathVariable int id, @RequestPart UserDTO dto) {
+    public ResponseEntity<String> updateUser(@PathVariable Long id, @RequestPart UserDTO dto) {
 
         Users user = null;
         try {

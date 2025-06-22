@@ -54,7 +54,7 @@ public class UserService {
         }
     }
 
-    public Users getUserById(int userId) {
+    public Users getUserById(Long userId) {
         return userRepository.findById(userId).orElse(new Users());
     }
 
@@ -62,7 +62,7 @@ public class UserService {
     return userRepository.findByUsername(username);
 }
 
-    public Users updateUser(int id, UserDTO dto) {
+    public Users updateUser(Long id, UserDTO dto) {
     Users existingUser = userRepository.findById(id)
         .orElseThrow(() -> new UsernameNotFoundException("User not found with ID: " + id));
 
