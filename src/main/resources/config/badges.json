@@ -1,0 +1,19 @@
+[
+  {
+    "name": "Top Critic",
+    "rule": "review_count > 20 && avg_rating >= 4.5",
+    "description": "Awarded to users with over 20 reviews and a high average rating"
+
+  },
+  {
+    "name": "Rising Star",
+    "rule": "reputation > 200 && account_age < 30",
+    "description": "High reputation in the first 30 days"
+
+  },
+  {
+    "name": "Movie Fanatic",
+    "rule": "watchlist_size > 100",
+    "description": "Added more than 100 movies to watchlist"
+  }
+]
