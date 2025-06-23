@@ -11,7 +11,11 @@ import org.springframework.stereotype.Service;
 
 import com.unime.CineVerse.DTO.UserDTO;
 import com.unime.CineVerse.model.Users;
+import com.unime.CineVerse.repository.ReviewRepository;
 import com.unime.CineVerse.repository.UserRepository;
+import com.unime.CineVerse.saga.SagaExecutor;
+import com.unime.CineVerse.saga.steps.DeleteBadgesStep;
+import com.unime.CineVerse.saga.steps.DeleteReviewsStep;
 
 import java.time.LocalDateTime;
 
@@ -28,6 +32,12 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private ReviewService reviewService;
+
+    @Autowired
+    private ReviewRepository reviewRepository;
+
 
     private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
 
@@ -40,7 +50,7 @@ public class UserService {
         return user;
     }
 
-    public String verify(Users user) {
+    public String login(Users user) {
         Authentication authentication = authManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
         if (authentication.isAuthenticated()) {
 
@@ -72,5 +82,22 @@ public class UserService {
     
     return userRepository.save(existingUser);
 }
+public void deleteUserSaga(Long userId) {
+    SagaExecutor saga = new SagaExecutor();
+
+    // Pass required beans to the step constructors
+    saga.addStep(new DeleteReviewsStep(userId, reviewService, reviewRepository));
+    // saga.addStep(new DeleteBadgesStep(userId, badgeService, badgeRepository));
+    saga.execute();
+
+    try {
+        userRepository.deleteById(userId);
+    } catch (Exception e) {
+        // Optionally compensate if user deletion fails
+        // saga.rollback(); // You may need to expose this method
+        throw e;
+    }
+}
+
 
 }

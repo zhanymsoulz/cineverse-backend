@@ -11,6 +11,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -21,6 +22,9 @@ public class ReviewService {
 
     @Autowired
     private ApplicationEventPublisher eventPublisher;
+
+    public static final Map<Long, List<Review>> backupStorage = new HashMap<>();
+
 
     //FOR TEST MOCK DATA
     @Autowired
@@ -59,5 +63,13 @@ public class ReviewService {
     public void deleteReview(Long id) {
         reviewRepository.deleteById(id);
     }
+
+    public List<Review> deleteAllReviewsByUserId(Long userId) {
+    List<Review> originalReviews = reviewRepository.findByUserId(userId);
+    backupStorage.put(userId, originalReviews); // in-memory or temp DB
+    reviewRepository.deleteAll(originalReviews);
+    return originalReviews;
+}
+
 }
 
