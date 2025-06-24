@@ -37,6 +37,14 @@ public class UserController {
     private JWTService jwtService;
     @Autowired
     private UserService userService;
+    private String extractUsernameFromRequest(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return null;
+        }
+        String token = authHeader.substring(7);
+        return jwtService.extractUserName(token);
+    }
 
     @PostMapping("/register")
     public Users register(@RequestBody UserDTO dto) {
@@ -57,35 +65,16 @@ public ResponseEntity<Map<String, String>> login(@RequestBody Users dto) {
     public Users getUserById(@PathVariable Long userId){
         return service.getUserById(userId);
     }
+    
+
     @GetMapping("/me")
 public ResponseEntity<Users> getCurrentUser(HttpServletRequest request) {
-    String authHeader = request.getHeader("Authorization");
-    System.out.println("Auth header: " + authHeader);
-
-    if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-        System.out.println("Missing or invalid Authorization header");
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    String username = extractUsernameFromRequest(request);
+    if (username == null) {
+        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
-
-    String token = authHeader.substring(7);
-    System.out.println("Extracted token: " + token);
-
-    try {
-        String username = jwtService.extractUserName(token);
-        System.out.println("Extracted username: " + username);
-
-        Users user = userService.getUserByUsername(username);
-        if (user == null) {
-            System.out.println("User not found in DB");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-
-        return ResponseEntity.ok(user);
-    } catch (Exception e) {
-        System.out.println("Exception occurred: " + e.getMessage());
-        e.printStackTrace();  // Optional but helpful
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-    }
+    Users currentUser = userService.getUserByUsername(username);
+    return ResponseEntity.ok(currentUser);
 }
 
 
@@ -109,21 +98,17 @@ public ResponseEntity<String> updateCurrentUser(
         HttpServletRequest request,
         @RequestBody UserDTO dto
 ) {
-    String authHeader = request.getHeader("Authorization");
-
-    if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+    String username = extractUsernameFromRequest(request);
+    if (username == null) {
         return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
     }
-
-    String token = authHeader.substring(7);
-    String username = jwtService.extractUserName(token); // or extractEmail()
 
     Users currentUser = userService.getUserByUsername(username);
 
     try {
         service.updateUser(currentUser.getId(), dto);
         return new ResponseEntity<>("Updated", HttpStatus.OK);
-    } catch (IOException e) {
+    } catch (Exception e) {
         return new ResponseEntity<>("Failed to update", HttpStatus.BAD_REQUEST);
     }
 }
@@ -136,4 +121,5 @@ public ResponseEntity<String> updateCurrentUser(
             return new ResponseEntity<>("Failed to delete user", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
 }

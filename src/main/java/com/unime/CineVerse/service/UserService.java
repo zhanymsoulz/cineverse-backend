@@ -58,7 +58,7 @@ public class UserService {
             existingUser.setLastActive(LocalDateTime.now());
             userRepository.save(existingUser);
 
-            return jwtService.generateToken(user.getUsername());
+            return jwtService.generateToken(user.getUsername(), user.getId());
         } else {
             return "fail";
         }
