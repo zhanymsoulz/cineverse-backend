@@ -47,7 +47,7 @@ public class JWTService {
                 .add(claims)
                 .subject(username)
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + 60 * 60 * 30))
+                .expiration(new Date(System.currentTimeMillis() + 60 * 60 * 30 * 10))
                 .and()
                 .signWith(getKey())
                 .compact();
@@ -66,6 +66,7 @@ public class JWTService {
     }
     public Long extractUserId(String token) {
     Claims claims = extractAllClaims(token);
+    System.out.println("JWT claims: " + claims);
     Object userIdObj = claims.get("userId");
     if (userIdObj instanceof Integer) {
         return ((Integer) userIdObj).longValue();

@@ -1,5 +1,6 @@
 package com.unime.CineVerse.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.SecurityProperties.User;
 import org.springframework.stereotype.Service;
 
@@ -8,10 +9,13 @@ import com.unime.CineVerse.model.Users;
 import com.unime.CineVerse.repository.FollowRepository;
 import com.unime.CineVerse.repository.UserRepository;
 
+import java.util.List;
+
 @Service
 public class FollowService {
-
+    @Autowired
     UserRepository userRepository;
+    @Autowired
     FollowRepository followRepository;
     public void followUser(Long followingUserId, Long followedUserId) {
         if (followingUserId == null || followedUserId == null) {
@@ -38,4 +42,27 @@ public class FollowService {
 
         followRepository.save(follow);
     }   
+    public void unfollowUser(Long followingUserId, Long followedUserId) {
+        Follow follow = followRepository.findByFollowingUserIdAndFollowedUserId(followingUserId, followedUserId)
+                .orElseThrow(() -> new IllegalArgumentException("Follow relationship not found"));
+        followRepository.delete(follow);
+    }
+
+    public List<Users> getFollowers(Long userId) {
+        List<Follow> follows = followRepository.findByFollowedUserId(userId);
+        return follows.stream().map(Follow::getFollowingUser).toList();
+    }
+
+    public List<Users> getFollowing(Long userId) {
+        List<Follow> follows = followRepository.findByFollowingUserId(userId);
+        return follows.stream().map(Follow::getFollowedUser).toList();
+    }
+
+    public long countFollowers(Long userId) {
+        return followRepository.countByFollowedUserId(userId);
+    }
+
+    public long countFollowing(Long userId) {
+        return followRepository.countByFollowingUserId(userId);
+    }
 }
