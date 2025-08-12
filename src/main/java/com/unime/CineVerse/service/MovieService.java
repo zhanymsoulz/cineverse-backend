@@ -28,5 +28,12 @@ public class MovieService {
     RestTemplate restTemplate = new RestTemplate();
     return restTemplate.getForObject(url, String.class);
 }
+    public String getTrendingMovies() {
+        String url = BASE_URL + "/trending/movie/week?api_key=" + apiKey + "&language=en-US&page=1";
+        System.out.println(url);
+
+        RestTemplate restTemplate = new RestTemplate();
+        return restTemplate.getForObject(url, String.class); // you can parse it to a DTO later
+    }
 
 }

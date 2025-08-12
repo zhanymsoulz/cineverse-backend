@@ -22,7 +22,7 @@ import com.unime.CineVerse.service.UserService;
 
 import jakarta.servlet.http.HttpServletRequest;
 
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/follow")
 public class FollowController {

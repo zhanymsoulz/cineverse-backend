@@ -26,7 +26,8 @@ import com.unime.CineVerse.service.UserService;
 import io.jsonwebtoken.io.IOException;
 import jakarta.servlet.http.HttpServletRequest;
 
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "http://localhost:3000")
+
 @RestController
 @RequestMapping("/users")
 public class UserController {

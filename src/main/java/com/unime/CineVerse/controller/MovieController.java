@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.unime.CineVerse.service.MovieService;
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api/movies")
 public class MovieController {
@@ -19,13 +19,15 @@ public class MovieController {
 
     @GetMapping("/popular")
     public ResponseEntity<String> getPopularMovies() {
-        String result = movieService.getPopularMovies();
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(movieService.getPopularMovies());
+    }
+    @GetMapping("/trending")
+    public ResponseEntity<String> getTrendingMovies() {
+        return ResponseEntity.ok(movieService.getTrendingMovies());
     }
     @GetMapping("/{id}")
     public ResponseEntity<String> getMovie(@PathVariable Long id) {
-        String result = movieService.getMovie(id);
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(movieService.getMovie(id));
     }
 }
 
