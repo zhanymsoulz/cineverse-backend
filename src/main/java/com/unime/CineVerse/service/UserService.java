@@ -14,8 +14,9 @@ import com.unime.CineVerse.model.Users;
 import com.unime.CineVerse.repository.ReviewRepository;
 import com.unime.CineVerse.repository.UserRepository;
 import com.unime.CineVerse.saga.SagaExecutor;
-import com.unime.CineVerse.saga.steps.DeleteBadgesStep;
 import com.unime.CineVerse.saga.steps.DeleteReviewsStep;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.time.LocalDateTime;
 
@@ -42,6 +43,9 @@ public class UserService {
     private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
 
     public Users register(UserDTO dto) {
+        if (existsByUsername(dto.getUsername())) {
+            throw new RuntimeException("Username already exists");
+        }
         Users user= new Users();
         user.setUsername(dto.getUsername());
         user.setEmail(dto.getEmail());
@@ -76,12 +80,21 @@ public class UserService {
     Users existingUser = userRepository.findById(id)
         .orElseThrow(() -> new UsernameNotFoundException("User not found with ID: " + id));
 
-    
-    existingUser.setEmail(dto.getEmail());
-    existingUser.setPassword(encoder.encode(dto.getPassword()));
-    
+    if (dto.getEmail() != null && !dto.getEmail().isBlank()) {
+        existingUser.setEmail(dto.getEmail());
+    }
+
+    if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
+        existingUser.setPassword(encoder.encode(dto.getPassword()));
+    }
+
+    if (dto.getUsername() != null && !dto.getUsername().isBlank() && !dto.getUsername().equals(existingUser.getUsername())) {
+        existingUser.setUsername(dto.getUsername());
+    }
+
     return userRepository.save(existingUser);
 }
+
 public void deleteUserSaga(Long userId) {
     SagaExecutor saga = new SagaExecutor();
 
@@ -98,6 +111,22 @@ public void deleteUserSaga(Long userId) {
         throw e;
     }
 }
+public String extractUsernameFromRequest(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return null;
+        }
+        String token = authHeader.substring(7);
+        return jwtService.extractUserName(token);
+    }
+
+public boolean existsByUsername(String username) {
+    if(userRepository.findByUsername(username) != null) {
+        return true;
+    }
+    return false;
+}
+
 
 
 }

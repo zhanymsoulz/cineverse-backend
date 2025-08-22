@@ -1,6 +1,6 @@
 package com.unime.CineVerse.controller;
 
-
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,112 +15,100 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.unime.CineVerse.DTO.UserDTO;
+import com.unime.CineVerse.DTO.UserResponseDTO;
 import com.unime.CineVerse.model.Users;
-import com.unime.CineVerse.service.JWTService;
 import com.unime.CineVerse.service.UserService;
 
-import io.jsonwebtoken.io.IOException;
 import jakarta.servlet.http.HttpServletRequest;
 
 @CrossOrigin(origins = "http://localhost:3000")
-
 @RestController
 @RequestMapping("/users")
 public class UserController {
 
     @Autowired
-    private UserService service;
-    @Autowired
-    private JWTService jwtService;
-    @Autowired
     private UserService userService;
-    private String extractUsernameFromRequest(HttpServletRequest request) {
-        String authHeader = request.getHeader("Authorization");
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return null;
-        }
-        String token = authHeader.substring(7);
-        return jwtService.extractUserName(token);
+
+    @GetMapping("/check-username")
+    public ResponseEntity<Map<String, Boolean>> checkUsername(@RequestParam String username) {
+        boolean taken = userService.existsByUsername(username);
+        Map<String, Boolean> response = Collections.singletonMap("taken", taken);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/register")
     public Users register(@RequestBody UserDTO dto) {
-        return service.register(dto);
-
+        return userService.register(dto);
     }
 
     @PostMapping("/login")
-public ResponseEntity<Map<String, String>> login(@RequestBody Users dto) {
-    String token = service.login(dto);
-    Map<String, String> response = new HashMap<>();
-    response.put("token", token);
-    return ResponseEntity.ok(response);
-}
-
+    public ResponseEntity<Map<String, String>> login(@RequestBody Users dto) {
+        String token = userService.login(dto);
+        Map<String, String> response = new HashMap<>();
+        response.put("token", token);
+        return ResponseEntity.ok(response);
+    }
 
     @GetMapping("/{userId}")
-    public Users getUserById(@PathVariable Long userId){
-        return service.getUserById(userId);
+    public Users getUserById(@PathVariable Long userId) {
+        return userService.getUserById(userId);
     }
-    
 
     @GetMapping("/me")
-public ResponseEntity<Users> getCurrentUser(HttpServletRequest request) {
-    String username = extractUsernameFromRequest(request);
-    if (username == null) {
-        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-    }
-    Users currentUser = userService.getUserByUsername(username);
-    return ResponseEntity.ok(currentUser);
-}
-
-
-    @PutMapping("/{id}")
-    public ResponseEntity<String> updateUser(@PathVariable Long id, @RequestPart UserDTO dto) {
-
-        Users user = null;
-        try {
-            user = service.updateUser(id, dto);
-        } catch (IOException e) {
-            return new ResponseEntity<>("Failed to update", HttpStatus.BAD_REQUEST);
+    public ResponseEntity<UserResponseDTO> getCurrentUser(HttpServletRequest request) {
+        String username = userService.extractUsernameFromRequest(request);
+        if (username == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
-        if (user != null) {
-            return new ResponseEntity<>("updated", HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>("Failed to update", HttpStatus.BAD_REQUEST);
-        }
+        Users currentUser = userService.getUserByUsername(username);
+        UserResponseDTO response = new UserResponseDTO(currentUser);
+        return ResponseEntity.ok(response);
     }
+
     @PutMapping("/me")
-public ResponseEntity<String> updateCurrentUser(
-        HttpServletRequest request,
-        @RequestBody UserDTO dto
-) {
-    String username = extractUsernameFromRequest(request);
-    if (username == null) {
-        return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
-    }
+    public ResponseEntity<UserResponseDTO> updateCurrentUser(HttpServletRequest request, @RequestBody UserDTO dto) {
+        String username = userService.extractUsernameFromRequest(request);
+        if (username == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
 
-    Users currentUser = userService.getUserByUsername(username);
+        Users currentUser = userService.getUserByUsername(username);
 
-    try {
-        service.updateUser(currentUser.getId(), dto);
-        return new ResponseEntity<>("Updated", HttpStatus.OK);
-    } catch (Exception e) {
-        return new ResponseEntity<>("Failed to update", HttpStatus.BAD_REQUEST);
-    }
-}
-@DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteUser(@PathVariable Long id) {
         try {
-            service.deleteUserSaga(id);
+            Users updatedUser = userService.updateUser(currentUser.getId(), dto);
+            return ResponseEntity.ok(new UserResponseDTO(updatedUser));
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @DeleteMapping("/me")
+    public ResponseEntity<String> deleteCurrentUser(HttpServletRequest request) {
+        String username = userService.extractUsernameFromRequest(request);
+        if (username == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        Users currentUser = userService.getUserByUsername(username);
+        Long id = currentUser.getId();
+        try {
+            userService.deleteUserSaga(id);
             return new ResponseEntity<>("User deleted successfully", HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>("Failed to delete user", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+        try {
+            userService.deleteUserSaga(id);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }
