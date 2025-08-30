@@ -5,10 +5,12 @@ import com.unime.CineVerse.event.ReviewPostedEvent;
 import com.unime.CineVerse.model.Review;
 import com.unime.CineVerse.model.Users;
 import com.unime.CineVerse.repository.ReviewRepository;
-import com.unime.CineVerse.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.HashMap;
 import java.util.List;
@@ -27,17 +29,16 @@ public class ReviewService {
 
 
     //FOR TEST MOCK DATA
-    @Autowired
-    private UserRepository userRepository;
-    public Review createReview(ReviewDTO dto) {
+
+    public Review createReview(Users user, ReviewDTO dto) {
         Review review = new Review();
-        review.setUserId(dto.getUserId());
+        review.setUserId(user.getId());
         review.setMovieId(dto.getMovieId());
         review.setContent(dto.getContent());
         review.setRating(dto.getRating());
 
         //TEST
-        Users user = userRepository.findById(dto.getUserId()).orElseThrow();
+        //Users user = userRepository.findById(dto.getUserId()).orElseThrow();
         Map<String, Object> stats = new HashMap<>();
         stats.put("review_count", 21);
         stats.put("avg_rating", 4.7);
@@ -71,5 +72,8 @@ public class ReviewService {
     return originalReviews;
 }
 
+public List<Review> getReviewsByMovie(Long movieId) {
+    return reviewRepository.findByMovieId(movieId);
+}
 }
 

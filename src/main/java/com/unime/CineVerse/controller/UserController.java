@@ -54,8 +54,9 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
-    public Users getUserById(@PathVariable Long userId) {
-        return userService.getUserById(userId);
+    public UserDTO getUserById(@PathVariable Long userId) {
+        //return userService.getUserById(userId);
+        return new UserDTO("gang", "password", "email"); // Placeholder response
     }
 
     @GetMapping("/me")

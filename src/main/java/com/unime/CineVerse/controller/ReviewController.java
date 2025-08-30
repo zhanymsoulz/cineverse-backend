@@ -1,8 +1,16 @@
 package com.unime.CineVerse.controller;
 
 import com.unime.CineVerse.DTO.ReviewDTO;
+import com.unime.CineVerse.DTO.ReviewResponseDTO;
 import com.unime.CineVerse.model.Review;
+import com.unime.CineVerse.model.Users;
 import com.unime.CineVerse.service.ReviewService;
+import com.unime.CineVerse.service.UserService;
+
+import jakarta.servlet.http.HttpServletRequest;
+
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,20 +22,23 @@ public class ReviewController {
     
     @Autowired
     private ReviewService reviewService;
-
+    @Autowired
+    private UserService userService;
     @PostMapping
-    public ResponseEntity<Review> createReview(@RequestBody ReviewDTO dto) {
-        return new ResponseEntity<>(reviewService.createReview(dto), HttpStatus.CREATED);
+    public ResponseEntity<ReviewResponseDTO> createReview(@RequestBody ReviewDTO dto, HttpServletRequest request) {
+        String username = userService.extractUsernameFromRequest(request);
+        Users user = userService.getUserByUsername(username);
+        return ResponseEntity.ok(new ReviewResponseDTO(reviewService.createReview(user, dto)));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Review> getReview(@PathVariable Long id) {
-        return ResponseEntity.ok(reviewService.getReview(id));
+    public ResponseEntity<ReviewResponseDTO> getReview(@PathVariable Long id) {
+        return ResponseEntity.ok(new ReviewResponseDTO(reviewService.getReview(id)));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Review> updateReview(@PathVariable Long id, @RequestBody ReviewDTO dto) {
-        return ResponseEntity.ok(reviewService.updateReview(id, dto));
+    public ResponseEntity<ReviewResponseDTO> updateReview(@PathVariable Long id, @RequestBody ReviewDTO dto) {
+        return ResponseEntity.ok(new ReviewResponseDTO(reviewService.updateReview(id, dto)));
     }
 
     @DeleteMapping("/{id}")
@@ -35,5 +46,9 @@ public class ReviewController {
         reviewService.deleteReview(id);
         return ResponseEntity.noContent().build();
     }
+    @GetMapping("/movie/{movieId}")
+public ResponseEntity<List<Review>> getReviewsByMovie(@PathVariable Long movieId) {
+    return ResponseEntity.ok(reviewService.getReviewsByMovie(movieId));
+}
 }
 

@@ -1,7 +1,6 @@
 package com.unime.CineVerse.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.security.SecurityProperties.User;
 import org.springframework.stereotype.Service;
 
 import com.unime.CineVerse.model.Follow;
